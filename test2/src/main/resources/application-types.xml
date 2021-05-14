@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="test" format="json">
+      <types:shape format="weave" example="examples/sampleMessage.json"><![CDATA[%dw 2.0
+
+type test = Array<{|  database: String,   tableName: String,   records: Array<{|    FirstName: String,     ID: Number {"typeId": "int"},     LastName: String  |}>
+|}> {"example": "[{\\\"database\\\":\\\"DB1\\\",\\\"tableName\\\":\\\"users\\\",\\\"records\\\":[{\\\"FirstName\\\":\\\"Jayden\\\",\\\"ID\\\":1,\\\"LastName\\\":\\\"James\\\"},{\\\"FirstName\\\":\\\"Sebastian\\\",\\\"ID\\\":2,\\\"LastName\\\":\\\"Ethan\\\"},{\\\"FirstName\\\":\\\"Carter\\\",\\\"ID\\\":3,\\\"LastName\\\":\\\"Michael\\\"},{\\\"FirstName\\\":\\\"James\\\",\\\"ID\\\":4,\\\"LastName\\\":\\\"Mason\\\"},{\\\"FirstName\\\":\\\"Sebastian\\\",\\\"ID\\\":24,\\\"LastName\\\":\\\"Ethan\\\"},{\\\"FirstName\\\":\\\"Jayden\\\",\\\"ID\\\":40,\\\"LastName\\\":\\\"James\\\"},{\\\"FirstName\\\":\\\"Jayden\\\",\\\"ID\\\":45,\\\"LastName\\\":\\\"James\\\"},{\\\"FirstName\\\":\\\"Jayden\\\",\\\"ID\\\":400,\\\"LastName\\\":\\\"James\\\"}]}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#148a1133-9c42-4fac-87ae-47468b4812c6"/>
+</types:mule>

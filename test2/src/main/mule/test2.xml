@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="5f991c01-2ba0-453a-a8ed-d260f05cfdde" >
+		<db:mssql-connection host="${users.host}" instanceName="SQLEXPRESS" port="1433" user="ROOT" password="S@mper2o21" databaseName="DB2" />
+	</db:config>
+	<global-property doc:name="Global Property" doc:id="edff9f5c-19f0-425c-b8e3-d604b830c4b9" name="env" value="local" />
+	<configuration-properties doc:name="Configuration properties" doc:id="108d8720-4d27-41ec-8dc5-ac2252b59e78" file="local.yaml" />
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="de4f9406-f147-4bad-9396-d5aa3d426b75" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="test2Flow2" doc:id="a52e56ef-4c4d-44cc-9b64-75e95a7c3bf4" >
+		<ee:transform doc:name="Transform Message" doc:id="148a1133-9c42-4fac-87ae-47468b4812c6">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+output application/json
+var se = write (payload[0]..set, "application/dw") replace "\n" with ""  replace "{" with "" replace "\"" with ""  replace "}" with "" replace  "[" with "" replace "]" with "" replace ":" with " = "
+var condition = write (payload[0]..condition, "application/dw") replace "\n" with ""  replace "{" with "" replace "\"" with ""  replace "}" with "" replace  "[" with "" replace "]" with "" replace ":" with " = "
+var table = (payload[0] pluck ((value, key, index) -> key ))[0]
+---
+{}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="7ed719ab-f95d-4f55-b6ca-57a8070f733c">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+
+---
+{
+    table:(payload[0] pluck ((value, key, index) -> key ))[0],
+    condition : (payload[0] pluck ((value, key, index) -> value.condition ))[0],
+    set : (payload[0] pluck ((value, key, index) -> value.set ))[0]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="e5f0e8ca-5bef-4885-afa0-a1eac3592a07">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+{
+	
+}
+
+//var x=(payload[0] pluck ((value, key, index) -> value.set ))[0]
+//trim(write(x,"application/json") replace "{\n" with "" replace "\n}
+//" with "" replace "\"" with "" replace  ":" with "=" replace "\n" with "" replace "}" with "" 
+//)
+//var y=(payload[0] pluck ((value, key, index) -> value.condition ))[0]
+//write(y,"application/dw")replace"\""with"" replace ' ' with ""
+//var t=table:(payload[0] pluck ((value, key, index) -> key ))[0] as String
+//t.table
+
+//write(y,"application/dw") replace "\"" with "" replace ' ' with ""
+
+
+//var set = write (payload[0]..set, "application/dw") replace "\n" with ""  replace 
+//"{" with "" replace "\"" with ""  replace "}" with "" replace  "[" with "" replace 
+//	"
+//]" with "" replace ":" with " = "
+
+//%dw 2.0
+//output application/json
+//var values = attributes.queryParams.values
+//---
+//(payload.set map]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="2c633df8-8692-479d-b94a-c0885cdd6ad4">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var x=(payload[0] pluck ((value, key, index) -> value.set ))[0]
+---
+trim(write(x,"application/dw") replace "{\n" with "" replace "\n}
+" with "" replace "\"" with "'" replace  ":" with "=" replace "\n" with "" replace "}" with ""  
+)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="test2Flow" doc:id="a76afc3f-015a-4a32-b25e-667297e94699" >
+		<http:listener doc:name="Listener" doc:id="df70cbca-69f4-40c7-8c56-6149bac8def9" config-ref="HTTP_Listener_config" path="/test" />
+		<logger level="INFO" doc:name="Logger" doc:id="41af04fe-145b-4ca3-82ba-c3183006636e" message="#[payload]" />
+		<set-variable value="#[%dw 2.0
+output application/json
+var x=(payload[0] pluck ((value, key, index) -&gt; value.set ))[0]
+---
+trim(write(x,&quot;application/dw&quot;) replace &quot;{\n&quot; with &quot;&quot; replace &quot;\n}
+&quot; with &quot;&quot; replace &quot;\&quot;&quot; with &quot;'&quot; replace  &quot;:&quot; with &quot;=&quot; replace &quot;\n&quot; with &quot;&quot; replace &quot;}&quot; with &quot;&quot;  
+)]" doc:name="SET UPDATE COLUMN" doc:id="24919a97-09fe-4d9e-9a7b-4438bb1d6022" variableName="set"/>
+		<set-variable value='#[%dw 2.0
+output application/json
+var t=table:(payload[0] pluck ((value, key, index) -&gt; key ))[0] as String
+---
+t.table]' doc:name="table name" doc:id="c307073a-8441-4aaa-846b-a85855c2678d" variableName="table" />
+		<set-variable value="#[%dw 2.0
+output application/json
+var y=(payload[0] pluck ((value, key, index) -&gt; value.condition ))[0]
+---
+write(y,&quot;application/dw&quot;)replace&quot;\&quot;&quot;with&quot;&quot; replace '   ' with &quot;&quot; replace &quot;:&quot; with &quot;=&quot;]" doc:name="condition" doc:id="4f1773cf-8dbf-4e46-876d-0dd20cc834b9" variableName="condition" />
+		<db:update doc:name="Update" doc:id="80e92b2f-a691-423b-981b-f02847464e7c" config-ref="Database_Config" target="result">
+			<db:sql><![CDATA[ #["UPDATE "++ vars.table ++ " SET " ++ vars.set ++" "++ vars.condition]]]></db:sql>
+		</db:update>
+		<logger level="INFO" doc:name="Logger" doc:id="a0b755f0-91c8-4f78-ab38-d3ff07315655" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="a483aa5a-9edc-48b8-8577-7d6e55fc3c7c">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"noOfrecords updated": vars.result.affectedRows,
+"Message": ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="test2Flow1" doc:id="6512ab29-2e71-4aa9-b7db-50378c25e521" >
+		<db:select doc:name="Select" doc:id="68e04802-a504-4833-87bd-d11d2a0df06f" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from users]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="6269c4f2-ede0-4166-9f6d-c8bdc4f558b9">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
